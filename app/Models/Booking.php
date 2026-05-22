@@ -12,7 +12,7 @@ class Booking extends Model
         'start_time',
         'duration',
         'total_price',
-        'status'
+        'status'    
     ];
 
     public function table()
