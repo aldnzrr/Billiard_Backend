@@ -38,22 +38,28 @@ class AuthController extends Controller
     }
 
     // ==========================================
-    // 2. FUNGSI LOGIN (MASUK APLIKASI)
+    // 2. FUNGSI LOGIN (MENGGUNAKAN USERNAME)
     // ==========================================
     public function login(Request $request)
     {
-        // Cari email yang diketik user di database
-        $user = User::where('email', $request->email)->first();
+        // 1. Validasi bahwa 'username' dan 'password' wajib diisi
+        $request->validate([
+            'username' => 'required|string',
+            'password' => 'required'
+        ]);
 
-        // Cek apakah emailnya ada DAN passwordnya cocok?
+        // 2. Cari berdasarkan kolom 'name' di database menggunakan inputan 'username'
+        $user = User::where('name', $request->username)->first();
+
+        // 3. Cek apakah usernamenya ada DAN passwordnya cocok?
         if (!$user || !Hash::check($request->password, $user->password)) {
             // Kalau salah satu salah, tolak!
             return response()->json([
-                'message' => 'Email atau Password salah!'
+                'message' => 'Username atau Password salah!'
             ], 401);
         }
 
-        // Kalau benar, buatkan Token baru
+        // 4. Kalau benar, buatkan Token baru
         $token = $user->createToken('auth_token')->plainTextToken;
 
         return response()->json([

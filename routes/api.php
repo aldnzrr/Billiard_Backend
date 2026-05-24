@@ -2,47 +2,96 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+
+use App\Http\Controllers\AuthController;
 use App\Http\Controllers\Api\TableController;
 use App\Http\Controllers\Api\BookingController;
-use App\Http\Controllers\AuthController;
 
 // ==========================================
-// 1. ROUTE PUBLIK (Bisa diakses TANPA login)
+// PUBLIC ROUTE
 // ==========================================
+
+// REGISTER
 Route::post('/register', [AuthController::class, 'register']);
+
+// LOGIN
 Route::post('/login', [AuthController::class, 'login']);
-Route::get('/tables', [TableController::class, 'index']); // Semua orang bisa lihat daftar meja
+
+// GET TABLES
+Route::get('/tables', [TableController::class, 'index']);
 
 
 // ==========================================
-// 2. ROUTE YANG WAJIB LOGIN (Semua Role)
+// RESERVATION
 // ==========================================
+
+// CREATE RESERVATION
+Route::post('/reservation', [BookingController::class, 'store']);
+
+
+// ==========================================
+// LOGIN REQUIRED
+// ==========================================
+
 Route::middleware('auth:sanctum')->group(function () {
-    
-    // Ambil data profil user yang sedang login
+
+    // GET USER LOGIN
     Route::get('/user', function (Request $request) {
         return $request->user();
     });
 
-    // Jalur yang bisa diakses oleh ADMIN dan USER biasa
+    // ==========================================
+    // ADMIN + USER
+    // ==========================================
+
     Route::middleware('role:admin,user')->group(function () {
-        Route::post('/bookings', [BookingController::class, 'store']); // Alamat buat orang mesen meja
-        Route::post('/bookings/{id}/upload-receipt', [BookingController::class, 'uploadReceipt']); // User upload bukti transfer
-        Route::get('/bookings/{id}/ticket', [BookingController::class, 'getTicket']); // User melihat tiket barcode-nya
+
+        // UPLOAD RECEIPT
+        Route::post(
+            '/bookings/{id}/upload-receipt',
+            [BookingController::class, 'uploadReceipt']
+        );
+
+        // GET TICKET
+        Route::get(
+            '/bookings/{id}/ticket',
+            [BookingController::class, 'getTicket']
+        );
     });
 
     // ==========================================
-    // 3. ROUTE KHUSUS ADMIN SAJA
+    // ADMIN ONLY
     // ==========================================
+
     Route::middleware('role:admin')->group(function () {
-        // Kelola Meja Billiard
-        Route::post('/tables', [TableController::class, 'store']);
-        Route::put('/tables/{id}', [TableController::class, 'update']);
-        Route::delete('/tables/{id}', [TableController::class, 'destroy']);
-        
-        // Kelola Bookingan
-        Route::get('/bookings', [BookingController::class, 'index']); // Melihat semua daftar booking (hanya admin)
-        Route::put('/bookings/{id}/pay', [BookingController::class, 'pay']); // Update status jadi dibayar
+
+        // TABLES
+        Route::post(
+            '/tables',
+            [TableController::class, 'store']
+        );
+
+        Route::put(
+            '/tables/{id}',
+            [TableController::class, 'update']
+        );
+
+        Route::delete(
+            '/tables/{id}',
+            [TableController::class, 'destroy']
+        );
+
+        // BOOKINGS
+        Route::get(
+            '/bookings',
+            [BookingController::class, 'index']
+        );
+
+        // PAYMENT
+        Route::put(
+            '/bookings/{id}/pay',
+            [BookingController::class, 'pay']
+        );
     });
 
 });
