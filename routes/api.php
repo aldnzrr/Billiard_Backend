@@ -8,7 +8,7 @@ use App\Http\Controllers\Api\TableController;
 use App\Http\Controllers\Api\BookingController;
 
 // ==========================================
-// PUBLIC ROUTE
+// PUBLIC ROUTE (TIDAK DIUBAH)
 // ==========================================
 
 // REGISTER
@@ -22,15 +22,14 @@ Route::get('/tables', [TableController::class, 'index']);
 
 
 // ==========================================
-// RESERVATION
+// RESERVATION (PUBLIC ACCESSIBLE POST ROUTE)
 // ==========================================
-
-// CREATE RESERVATION
-Route::post('/reservation', [BookingController::class, 'store']);
+// PERBAIKAN: Diubah dari /reservation menjadi /bookings agar sinkron dengan Android
+Route::post('/bookings', [BookingController::class, 'store']);
 
 
 // ==========================================
-// LOGIN REQUIRED
+// LOGIN REQUIRED (SANCTUM MIDDLEWARE)
 // ==========================================
 
 Route::middleware('auth:sanctum')->group(function () {
